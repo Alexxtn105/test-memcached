@@ -1,11 +1,22 @@
 # Тестовый проект с использованием Memcached
+По материалам видео https://www.youtube.com/watch?v=0aSaQVMzANg
 
 ## Клиент для go
 ```bash
-go get github.com/memcached/memcached
+go get github.com/bradfitz/gomemcache/memcache
 ```
 
-Тестовые данные для отправки
+## Установка memchached в docker
+```bash
+docker pull memcached
+```
+
+## Запуск memcached в docker
+```bash
+docker run -p 11211:11211 --name my-memcache -d memcached
+```
+
+## Тестовые данные
 ```json
 {
   "ID": 1,

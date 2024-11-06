@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"test-memcached/models"
@@ -19,18 +20,24 @@ func BlogsShow(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Ivalid blog ID", http.StatusBadRequest)
 		return
 	}
-	// вытаскиваем блог из БД
-	blog := models.BlogsFind(uint64(id))
+	log.Println(idStr)
+	// сперва посмотрим, есть ли статья в кэше
+	// если в кэше нет, кэшируем данные
+	data := models.CacheData("blog:"+idStr, 60, func() []byte {
+		// вытаскиваем блог из БД
+		blog := models.BlogsFind(uint64(id))
 
-	// преобразуем в слайс байтов
-	blogBytes, _ := json.Marshal(blog)
+		// преобразуем в слайс байтов
+		blogBytes, _ := json.Marshal(blog)
 
-	// имитируем длительный процесс
-	time.Sleep(time.Second * 2)
+		// имитируем длительный процесс
+		time.Sleep(time.Second * 2)
+		return blogBytes
+	})
 
 	// посылаем ответ пользователю
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(blogBytes); err != nil {
+	if _, err := w.Write(data); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 
